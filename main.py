@@ -9,7 +9,7 @@ st.set_page_config(
 
 st.header('봉사활동 기간 체크 프로그램')
 
-uploaded_files = st.file_uploader("엑셀파일을 올려주세요", type=["xlsx"],  accept_multiple_files=True)
+uploaded_files = st.file_uploader("엑셀파일을 올려주세요")
 for uploaded_file in uploaded_files:
     bytes_data = uploaded_file.read()
 
