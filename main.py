@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import datetime
 
 st.set_page_config(
     page_title="매천고 프로그램",
@@ -11,9 +12,12 @@ st.header('봉사활동 기간 체크 프로그램')
 
 uploaded_file = st.file_uploader("엑셀파일을 올려주세요")
 
+중복여부 = False
 if uploaded_file:
+    중복여부 = False
     data = pd.read_excel(uploaded_file)
     data = data.sort_values(by=['학년','반','번호'])
+    
 
     명렬 = data[['학년','반','번호','이름']]
     명렬 = 명렬.drop_duplicates()
@@ -41,7 +45,40 @@ if uploaded_file:
 
     for i, value in enumerate(test):
         if value:
+            중복여부 = True
 
+            temp = check.iloc[i]['활동시기']
+            start, end = map(str, check.iloc[i]['활동시기'].split('-'))
+
+            st.write(start, end)
+
+            년,월,일,t = map(str, end.split('.'))
+
+            날짜 = datetime.datetime(int(년), int(월), int(일))
+            날짜 = 날짜 - datetime.timedelta(days=1)
+
+            st.write()
+            indexKey = data.loc[
+                         (data['학년'] == check.iloc[i]['학년']) &
+                         (data['반'] == check.iloc[i]['반']) &
+                         (data['번호'] == check.iloc[i]['번호']) &
+                         (data['이름'] == check.iloc[i]['이름']) &
+                         (data['활동내용 (실제 생기부에 기재되는 내용)'] == check.iloc[i]['활동내용 (실제 생기부에 기재되는 내용)'])
+                     ].index
+            년 = str(날짜.year)
+            월 = 날짜.month
+            일 = 날짜.day
+            
+            if 월<10:
+                월 = '0'+str(월)
+            else:
+                월 = str(월)
+            if 일<10:
+                일 = '0'+str(일)
+            else:
+                일 = str(일)
+
+            data.loc[indexKey, '활동시기'] = start+'-'+년+'.'+월+'.'+일+'.'
 
             with c1:
                 st.write(check.iloc[i]['학년'])
@@ -57,8 +94,23 @@ if uploaded_file:
                 st.write(check.iloc[i]['활동내용 (실제 생기부에 기재되는 내용)'])
 
 
+    @st.cache
+    def convert_df(df):
+        # IMPORTANT: Cache the conversion to prevent computation on every rerun
+        return df.to_csv().encode('cp949')
 
 
+    csv = convert_df(data)
+
+    st.download_button(
+        label="파일을 다운로드하세요",
+        data=csv,
+        file_name='매천고 봉사활동 수정파일.csv',
+        mime='text/csv',
+    )
+
+if 중복여부 == False:
+    st.subheader(':blue[중복없음]')
 
 
 
