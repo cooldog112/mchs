@@ -17,7 +17,6 @@ if uploaded_file:
     중복여부 = False
     data = pd.read_excel(uploaded_file)
     data = data.sort_values(by=['학년','반','번호'])
-    
 
     명렬 = data[['학년','반','번호','이름']]
     명렬 = 명렬.drop_duplicates()
@@ -50,7 +49,6 @@ if uploaded_file:
             temp = check.iloc[i]['활동시기']
             start, end = map(str, check.iloc[i]['활동시기'].split('-'))
 
-            st.write(start, end)
 
             년,월,일,t = map(str, end.split('.'))
 
