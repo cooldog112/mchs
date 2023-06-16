@@ -9,11 +9,10 @@ st.set_page_config(
 
 st.header('봉사활동 기간 체크 프로그램')
 
-uploaded_files = st.file_uploader("엑셀파일을 올려주세요")
-for uploaded_file in uploaded_files:
-    bytes_data = uploaded_file.read()
+uploaded_file = st.file_uploader("엑셀파일을 올려주세요")
 
-    data = pd.read_excel(bytes_data)
+if uploaded_file:
+    data = pd.read_excel(uploaded_file)
     data = data.sort_values(by=['학년','반','번호'])
 
     명렬 = data[['학년','반','번호','이름']]
