@@ -94,10 +94,12 @@ if uploaded_file:
                 st.write(check.iloc[i]['활동시기'])
             with c6:
                 st.write(check.iloc[i]['활동내용 (실제 생기부에 기재되는 내용)'])
+
+
     buffer = io.BytesIO()
 
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-        data.to_excel(writer, sheet_name='Sheet')
+        data.to_excel(writer, sheet_name='Sheet', index=False)
         writer.close()
 
         st.download_button(
