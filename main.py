@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime
+import io
 
 st.set_page_config(
     page_title="매천고 프로그램",
@@ -14,7 +15,7 @@ uploaded_file = st.file_uploader("엑셀파일을 올려주세요")
 
 중복여부 = False
 if uploaded_file:
-    중복여부 = False
+
     data = pd.read_excel(uploaded_file)
     data = data.sort_values(by=['학년','반','번호'])
 
@@ -38,10 +39,12 @@ if uploaded_file:
     with c4:
         st.write('이름')
     with c5:
-        st.write('시기')
+        st.write('활동시기')
     with c6:
         st.write('내용')
 
+
+    cnt = 0
     for i, value in enumerate(test):
         if value:
             중복여부 = True
@@ -53,6 +56,7 @@ if uploaded_file:
             년,월,일,t = map(str, end.split('.'))
 
             날짜 = datetime.datetime(int(년), int(월), int(일))
+
             날짜 = 날짜 - datetime.timedelta(days=1)
 
             st.write()
@@ -66,7 +70,7 @@ if uploaded_file:
             년 = str(날짜.year)
             월 = 날짜.month
             일 = 날짜.day
-            
+
             if 월<10:
                 월 = '0'+str(월)
             else:
@@ -90,22 +94,19 @@ if uploaded_file:
                 st.write(check.iloc[i]['활동시기'])
             with c6:
                 st.write(check.iloc[i]['활동내용 (실제 생기부에 기재되는 내용)'])
+    buffer = io.BytesIO()
 
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        data.to_excel(writer, sheet_name='Sheet')
+        # writer.close()
 
-    @st.cache
-    def convert_df(df):
-        # IMPORTANT: Cache the conversion to prevent computation on every rerun
-        return df.to_csv().encode('cp949')
+        st.download_button(
+            label = 'Download Excel',
+            data = buffer,
+            file_name = '매천고 봉사활동 수정 파일.xlsx',
+            mime = 'application/vnd.ms-excel'
+        )
 
-
-    csv = convert_df(data)
-
-    st.download_button(
-        label="파일을 다운로드하세요",
-        data=csv,
-        file_name='매천고 봉사활동 수정파일.csv',
-        mime='text/csv',
-    )
 
 if 중복여부 == False:
     st.subheader(':blue[중복없음]')
